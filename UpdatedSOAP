@@ -1,0 +1,79 @@
+package com.mycompany.tttgame;
+
+// Mark updated SOAPClient file
+import com.tttws.TicTacToeWebService;
+import com.tttws.TicTacToeWS;
+
+public class SOAPClient {
+
+    private final TicTacToeWS proxy;
+
+    public SOAPClient() {
+        TicTacToeWebService service = new TicTacToeWebService();
+        proxy = service.getTicTacToeWSPort();
+    }
+
+    public int login(String u, String p) {
+        return proxy.login(u, p);
+    }
+
+    public String register(String u, String p, String n, String s) {
+        return proxy.register(u, p, n, s);
+    }
+
+    public String newGame(int uid) {
+        return proxy.newGame(uid);
+    }
+
+    public String joinGame(int uid, int gid) {
+        return proxy.joinGame(uid, gid);
+    }
+
+    public String getBoard(int gid) {
+        return proxy.getBoard(gid);
+    }
+
+    public String checkSquare(int x, int y, int gid) {
+        return proxy.checkSquare(x, y, gid);
+    }
+
+    public String takeSquare(int x, int y, int gid, int pid) {
+        return proxy.takeSquare(x, y, gid, pid);
+    }
+
+    public String checkWin(int gid) {
+        return proxy.checkWin(gid);
+    }
+
+    public String getGameState(int gid) {
+        return proxy.getGameState(gid);
+    }
+
+    public String setGameState(int gid, int gstate) {
+        return proxy.setGameState(gid, gstate);
+    }
+
+    public String deleteGame(int gid, int uid) {
+        return proxy.deleteGame(gid, uid);
+    }
+
+    public String showMyOpenGames(int uid) {
+        return proxy.showMyOpenGames(uid);
+    }
+
+    public String showAllMyGames(int uid) {
+        return proxy.showAllMyGames(uid);
+    }
+
+    public String showOpenGames() {
+        return proxy.showOpenGames();
+    }
+
+    public String leagueTable() {
+        return proxy.leagueTable();
+    }
+
+    public void closeConnection() {
+        proxy.closeConnection();
+    }
+}
