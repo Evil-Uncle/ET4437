@@ -1,4 +1,4 @@
-package com.mycompany.tttgame;
+package com.ul.et4437.tictactoe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,28 +6,34 @@ import java.awt.*;
 public class StartWindow extends JFrame {
     public StartWindow() {
         setTitle("Tic Tac Toe - Start");
-        setSize(300, 180);
+        setSize(300, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 1, 10, 10));
-
-        JLabel lbl = new JLabel("Welcome to Tic Tac Toe", SwingConstants.CENTER);
-        JButton loginBtn = new JButton("Login");
-        JButton regBtn = new JButton("Register");
-
-        loginBtn.addActionListener(e -> {
+        
+        JLabel titleLabel = new JLabel("Tic Tac Toe", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        
+        JButton loginButton = new JButton("Login");
+        JButton registerButton = new JButton("Register");
+        
+        add(titleLabel);
+        add(loginButton);
+        add(registerButton);
+        
+        loginButton.addActionListener(e -> {
             new LoginWindow().setVisible(true);
             dispose();
         });
-
-        regBtn.addActionListener(e -> {
+        
+        registerButton.addActionListener(e -> {
             new RegisterWindow().setVisible(true);
             dispose();
         });
-
-        add(lbl);
-        add(loginBtn);
-        add(regBtn);
-
+        
         setLocationRelativeTo(null);
+    }
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new StartWindow().setVisible(true));
     }
 }
