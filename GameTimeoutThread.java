@@ -1,4 +1,3 @@
-
 package com.mycompany.tttgame;
 
 /*
@@ -7,8 +6,6 @@ package com.mycompany.tttgame;
  *
  * Monitors a newly created game and automatically deletes it
  * after 15 minutes IF AND ONLY IF no second player has joined.
- *
- * This uses the Web Service proxy provided by TicTacToeWS.
  */
 
 public class GameTimeoutThread implements Runnable {
@@ -17,7 +14,7 @@ public class GameTimeoutThread implements Runnable {
     private final com.tttws.TicTacToeWS proxy;
     private volatile boolean running = true;
 
-    // 15 minutes in milliseconds
+    // 15 minutes (in ms)
     private static final long TIMEOUT_MS = 15 * 60 * 1000;
 
     public GameTimeoutThread(int gameId, com.tttws.TicTacToeWS proxy) {
@@ -43,9 +40,12 @@ public class GameTimeoutThread implements Runnable {
                     return;
                 }
 
-                // If a second player joins, stop thread
-                if (proxy.hasGameStarted(gameId)) {
-                    System.out.println("Game " + gameId + " has started. Timer cancelled.");
+                // Instead of hasGameStarted(), use getGameState
+                String state = proxy.getGameState(gameId);
+                
+                // If state != "0", assume game has started
+                if (!state.equals("0")) {
+                    System.out.println("Game " + gameId + " has started. Timeout cancelled.");
                     return;
                 }
 
@@ -57,11 +57,12 @@ public class GameTimeoutThread implements Runnable {
 
     private void checkAndDelete() {
         try {
-            boolean started = proxy.hasGameStarted(gameId);
+            String state = proxy.getGameState(gameId);
 
-            if (!started) {
-                proxy.deleteGame(gameId);
-                System.out.println("Game " + gameId + " deleted due to timeout (15 minutes).");
+            if (state.equals("0")) {
+                // deleteGame(gid, uid) — uid unknown, use 0
+                proxy.deleteGame(gameId, 0);
+                System.out.println("Game " + gameId + " deleted due to 15-minute timeout.");
             } else {
                 System.out.println("Game " + gameId + " started before timeout. Not deleted.");
             }

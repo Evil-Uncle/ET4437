@@ -1,7 +1,17 @@
-package com.ul.et4437.tictactoe;
+/*
+ * ET4437: Project (23364505)
+ *
+ * CHALLENGE: Tic Tac Toe client GUI windows (student-provided).
+ *
+ * This file: ScoreWindow - small window that shows wins / losses / draws.
+ */
+
+package com.mycompany.tttgame;
 
 import javax.swing.*;
 import java.awt.*;
+import com.mycompany.tttgame.SOAPClient;
+
 
 public class ScoreWindow extends JFrame {
     public ScoreWindow(int userId) {
@@ -9,7 +19,9 @@ public class ScoreWindow extends JFrame {
         setSize(400, 300);
         setLayout(new BorderLayout());
         
-        String data = WSClient.showAllMyGames(userId);
+        SOAPClient client = new SOAPClient();
+        String data = client.showAllMyGames(userId);
+
         
         if (data.startsWith("ERROR")) {
             JOptionPane.showMessageDialog(this, "No game history found");
