@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// Where the user launches the game after web services are launched
 import javax.swing.*;
 
 public class MainLauncher {
@@ -9,4 +9,5 @@ public class MainLauncher {
             start.setVisible(true);
         });
     }
+
 }
