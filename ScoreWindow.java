@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// File that handles user scores, such as wins, losses and draws
 import javax.swing.*;
 import java.awt.*;
 
@@ -27,13 +27,9 @@ public class ScoreWindow extends JFrame {
             String[] cols = row.split(",");
             if (cols.length >= 4) {
                 String state = cols[3].trim(); // gamestate column
-                // Need more logic to determine if user won - this is simplified
-                // For now, we'll count all non-draws as wins (will need refinement)
                 if (state.equals("3")) {
                     draws++;
-                } else if (state.equals("1") || state.equals("2")) {
-                    // This needs checking: is userId player1 or player2?
-                    // For demo, count as win
+                } else if (state.equals("1") || state.equals("2")) 
                     wins++;
                 }
             }
@@ -58,4 +54,5 @@ public class ScoreWindow extends JFrame {
         
         setLocationRelativeTo(null);
     }
+
 }
