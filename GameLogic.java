@@ -31,18 +31,18 @@ public class GameLogic {
         return true;
     }
 
-    // VALIDATION 
+    // Validating the Move
     private boolean isValidMove(int x, int y) {
         return x >= 0 && x < 3 && y >= 0 && y < 3 &&
                state.getCell(x, y) == ' ';
     }
 
-    // WIN CHECK
+    // Checks for a Win
     private boolean checkWin() {
         char p = state.getCurrentPlayer();
         char[][] b = state.getBoard();
 
-        // Rows + Columns
+        // Rows and Columns
         for (int i = 0; i < 3; i++) {
             if (b[i][0] == p && b[i][1] == p && b[i][2] == p) return true;
             if (b[0][i] == p && b[1][i] == p && b[2][i] == p) return true;
@@ -55,7 +55,7 @@ public class GameLogic {
         return false;
     }
 
-    // DRAW CHECK
+    // Checks for Draws
     private boolean checkDraw() {
         char[][] b = state.getBoard();
         for (int r = 0; r < 3; r++)
@@ -69,4 +69,5 @@ public class GameLogic {
 
     // Converts internal array index (0–2) to WS coordinate (1–3)
     public static int indexToWs(int i) { return i + 1; }
+
 }
