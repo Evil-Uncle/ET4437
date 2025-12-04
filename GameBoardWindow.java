@@ -3,9 +3,9 @@ package com.mycompany.tttgame;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Game board GUI. Uses GameUpdateThread to poll server and update board.
- */
+
+  //Game board GUI. Uses GameUpdateThread to poll server and update board.
+ 
 public class GameBoardWindow extends JFrame {
     private final int userId;
     private final String username;
@@ -92,7 +92,7 @@ public class GameBoardWindow extends JFrame {
         }
     }
 
-    // mark used for this player on UI (X for first player/creator, O otherwise)
+    // Mark used for this player on UI (X for first player/creator, O for the other player)
     private String userMark() {
         return isCreator ? "X" : "O";
     }
@@ -108,7 +108,7 @@ public class GameBoardWindow extends JFrame {
 
         if (boardStr == null) return;
         if (boardStr.startsWith("ERROR-NOMOVES")) {
-            // no moves yet; if creator -> enable on-turn squares will be set by setMyTurn
+            // no moves yet; if creator - enable on turn squares will be set by setMyTurn
             return;
         }
         if (boardStr.startsWith("ERROR")) {
@@ -165,4 +165,5 @@ public class GameBoardWindow extends JFrame {
     public void requestImmediateRefresh() {
         if (updater != null) updater.requestImmediateRefresh();
     }
+
 }
