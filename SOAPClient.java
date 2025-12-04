@@ -2,14 +2,9 @@ package com.mycompany.tttgame;
 
 import com.tttws.TicTacToeWS;
 import com.tttws.TicTacToeWebService;
-
-// Try Jakarta first; if it fails, switch to javax.xml.ws.BindingProvider
 import jakarta.xml.ws.BindingProvider;
-// import javax.xml.ws.BindingProvider;
 
-/**
- * Real SOAP client for TicTacToe Web Service.
- */
+//Real SOAP client for TicTacToe Web Service.
 public class SOAPClient {
 
     private static TicTacToeWebService service;
@@ -25,20 +20,18 @@ public class SOAPClient {
                 service = new TicTacToeWebService();
                 proxy = service.getTicTacToeWSPort();
 
-                // -------------------------
-                //   UPDATE SERVER ADDRESS
-                // -------------------------
-                String serverIP = "10.63.248.134";  // <--- Windows teammate's IP
+                // Update server address
+                String serverIP = "10.63.248.134";  // teammate's IP
                 String endpoint = "http://" + serverIP + ":8080/TicTacToeWS/TicTacToeWebService";
 
-                // Override endpoint
+                // Changes the web service URL from the default to your friend’s IP address
                 BindingProvider bp = (BindingProvider) proxy;
                 bp.getRequestContext().put(
                         BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                         endpoint
                 );
 
-                // Log what endpoint we are using
+                // Prints out the web servers URl
                 System.out.println("SOAP endpoint set to: " + endpoint);
 
                 System.out.println("✓ Web Service client initialized successfully");
@@ -49,7 +42,7 @@ public class SOAPClient {
         }
     }
 
-    // ============ AUTHENTICATION METHODS ============
+    // below is for logging in and registering users
 
     public int login(String username, String password) {
         try {
@@ -73,7 +66,7 @@ public class SOAPClient {
         }
     }
 
-    // ============ GAME MANAGEMENT METHODS ============
+    // Game logic
 
     public String newGame(int uid) {
         try {
@@ -178,7 +171,7 @@ public class SOAPClient {
         }
     }
 
-    // ============ LIST/QUERY METHODS ============
+    // Read only for info of the server
 
     public String showOpenGames() {
         try {
@@ -207,7 +200,7 @@ public class SOAPClient {
         }
     }
 
-    // ============ UTILITY METHODS ============
+    // clean up
 
     public void closeConnection() {
         try {
