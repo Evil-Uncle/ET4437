@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// The Games Start Up Screen
 import javax.swing.*;
 import java.awt.*;
 
@@ -32,4 +32,5 @@ public class StartWindow extends JFrame {
         
         setLocationRelativeTo(null);
     }
+
 }
