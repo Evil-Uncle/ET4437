@@ -1,7 +1,7 @@
 package com.mycompany.tttgame;
 
 public class GameState {
-
+// File that handles the different states of the Game
     private char[][] board;   // 3x3 board
     private char currentPlayer;
     private boolean gameOver;
@@ -57,4 +57,5 @@ public class GameState {
     public char getCell(int x, int y) {
         return board[x][y];
     }
+
 }
