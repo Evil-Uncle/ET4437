@@ -2,12 +2,10 @@ package com.mycompany.tttgame;
 
 import javax.swing.*;
 
-/**
- * Polls the server for updates to a particular game and updates the GameBoardWindow.
- * - polls getBoard
- * - computes whose turn it is (based on last move)
- * - applies board to view via SwingUtilities.invokeLater
- */
+
+// Calls the server to update the game
+// Computes each players turns
+
 public class GameUpdateThread implements Runnable {
 
     private final GameBoardWindow view;
@@ -121,4 +119,5 @@ public class GameUpdateThread implements Runnable {
             return false;
         }
     }
+
 }
