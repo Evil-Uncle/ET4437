@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// File that handles user registration
 import javax.swing.*;
 import java.awt.*;
 
@@ -34,7 +34,7 @@ public class RegisterWindow extends JFrame {
             String password = new String(passField.getPassword());
             
             SOAPClient client = new SOAPClient();
-            // CORRECT ORDER: username, password, name, surname
+            // Order: username, password, name, surname
             String result = client.register(username, password, name, surname);
             if (!result.startsWith("ERROR")) {
                 JOptionPane.showMessageDialog(this, "Registration successful! User ID: " + result);
@@ -53,4 +53,5 @@ public class RegisterWindow extends JFrame {
         
         setLocationRelativeTo(null);
     }
+
 }
