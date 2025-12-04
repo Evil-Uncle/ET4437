@@ -27,9 +27,7 @@ public class GameUpdateThread implements Runnable {
         running = false;
     }
 
-    /**
-     * Request an immediate poll from GUI (e.g. when user hits Refresh)
-     */
+    // Refreshing the Game
     public void requestImmediateRefresh() {
         immediateRefresh = true;
     }
@@ -59,17 +57,17 @@ public class GameUpdateThread implements Runnable {
     }
 
     private void pollOnce() {
-        // 1) get board
+        // Get Board
         String board = client.getBoard(gameId);
 
-        // 2) apply board to UI (on EDT)
+        // Apply board to UI (on EDT)
         SwingUtilities.invokeLater(() -> view.applyBoard(board));
 
-        // 3) decide whose turn it is
+        // Decide whose turn it is
         boolean myTurn = computeMyTurn(board);
         SwingUtilities.invokeLater(() -> view.setMyTurn(myTurn));
 
-        // 4) check for win/draw
+        // Check for win/draw
         int win = client.checkWinInt(gameId);
         if (win == 1 || win == 2 || win == 3) {
             // show winner/draw and stop polling
@@ -78,7 +76,7 @@ public class GameUpdateThread implements Runnable {
                 if (win == 3) {
                     msg = "Game ended in a draw.";
                 } else {
-                    // winner 1 or 2 -> map to player id (we need to know who is player1/p2)
+                    // winner 1 or 2 - map to player id (we need to know who is player1/p2)
                     // The WS checkWin returns "1" if p1 won, "2" if p2 won.
                     // We don't know p1/p2 ids here so we'll just show generic
                     msg = (win == 1) ? "Player 1 has won!" : "Player 2 has won!";
@@ -89,17 +87,17 @@ public class GameUpdateThread implements Runnable {
         }
     }
 
-    /**
-     * Determine if it's this client's turn.
-     * Logic:
-     * - If board string is ERROR-NOMOVES or empty -> p1 (creator) to play first.
-     * - Else parse last row (last move) and see its pid: if last move was by this user, it's NOT this user's turn; otherwise it is.
-     */
+    
+     // Determine if it's this client's turn.
+     // Logic:
+     // If board string is ERROR-NOMOVES or empty, then p1 (creator) to play first.
+     // Else parse last row (last move) and see its pid: if last move was by this user, it's NOT this user's turn; otherwise it is.
+     
     private boolean computeMyTurn(String board) {
         try {
             if (board == null) return false;
             if (board.startsWith("ERROR-NOMOVES") || board.trim().isEmpty()) {
-                // No moves yet -> p1 (creator) to move; we don't know if current user is p1.
+                // No moves yet - p1 (creator) to move; we don't know if current user is p1.
                 // To be conservative: if user created the game, they start; otherwise they wait.
                 // The GameBoardWindow sets isCreator flag and will request setMyTurn accordingly when created.
                 return view.isCreator();
@@ -121,3 +119,4 @@ public class GameUpdateThread implements Runnable {
     }
 
 }
+
