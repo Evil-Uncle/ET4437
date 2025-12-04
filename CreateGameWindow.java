@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// File that creates a new Game window
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -38,3 +38,4 @@ public class CreateGameWindow extends JFrame {
     }
 
 }
+
