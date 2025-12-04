@@ -3,6 +3,10 @@ package com.mycompany.tttgame;
 import com.tttws.TicTacToeWS;
 import com.tttws.TicTacToeWebService;
 
+// Try Jakarta first; if it fails, switch to javax.xml.ws.BindingProvider
+import jakarta.xml.ws.BindingProvider;
+// import javax.xml.ws.BindingProvider;
+
 /**
  * Real SOAP client for TicTacToe Web Service.
  */
@@ -20,6 +24,23 @@ public class SOAPClient {
             try {
                 service = new TicTacToeWebService();
                 proxy = service.getTicTacToeWSPort();
+
+                // -------------------------
+                //   UPDATE SERVER ADDRESS
+                // -------------------------
+                String serverIP = "10.63.248.134";  // <--- Windows teammate's IP
+                String endpoint = "http://" + serverIP + ":8080/TicTacToeWS/TicTacToeWebService";
+
+                // Override endpoint
+                BindingProvider bp = (BindingProvider) proxy;
+                bp.getRequestContext().put(
+                        BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                        endpoint
+                );
+
+                // Log what endpoint we are using
+                System.out.println("SOAP endpoint set to: " + endpoint);
+
                 System.out.println("✓ Web Service client initialized successfully");
             } catch (Exception e) {
                 System.err.println("✗ Failed to initialize web service client: " + e.getMessage());
@@ -27,9 +48,9 @@ public class SOAPClient {
             }
         }
     }
-    
+
     // ============ AUTHENTICATION METHODS ============
-    
+
     public int login(String username, String password) {
         try {
             int result = proxy.login(username, password);
@@ -51,9 +72,9 @@ public class SOAPClient {
             return "ERROR-DB";
         }
     }
-    
+
     // ============ GAME MANAGEMENT METHODS ============
-    
+
     public String newGame(int uid) {
         try {
             String result = proxy.newGame(uid);
@@ -78,8 +99,7 @@ public class SOAPClient {
 
     public String getBoard(int gid) {
         try {
-            String result = proxy.getBoard(gid);
-            return result;
+            return proxy.getBoard(gid);
         } catch (Exception e) {
             System.err.println("✗ getBoard error: " + e.getMessage());
             return "ERROR-DB";
@@ -88,8 +108,7 @@ public class SOAPClient {
 
     public String checkSquare(int x, int y, int gid) {
         try {
-            String result = proxy.checkSquare(x, y, gid);
-            return result;
+            return proxy.checkSquare(x, y, gid);
         } catch (Exception e) {
             System.err.println("✗ checkSquare error: " + e.getMessage());
             return "ERROR-DB";
@@ -109,8 +128,7 @@ public class SOAPClient {
 
     public String checkWin(int gid) {
         try {
-            String result = proxy.checkWin(gid);
-            return result;
+            return proxy.checkWin(gid);
         } catch (Exception e) {
             System.err.println("✗ checkWin error: " + e.getMessage());
             return "ERROR-DB";
@@ -130,8 +148,7 @@ public class SOAPClient {
 
     public String getGameState(int gid) {
         try {
-            String result = proxy.getGameState(gid);
-            return result;
+            return proxy.getGameState(gid);
         } catch (Exception e) {
             System.err.println("✗ getGameState error: " + e.getMessage());
             return "ERROR-DB";
@@ -160,13 +177,12 @@ public class SOAPClient {
             return "ERROR-DB";
         }
     }
-    
+
     // ============ LIST/QUERY METHODS ============
-    
+
     public String showOpenGames() {
         try {
-            String result = proxy.showOpenGames();
-            return result;
+            return proxy.showOpenGames();
         } catch (Exception e) {
             System.err.println("✗ showOpenGames error: " + e.getMessage());
             return "ERROR-DB";
@@ -175,8 +191,7 @@ public class SOAPClient {
 
     public String showAllMyGames(int uid) {
         try {
-            String result = proxy.showAllMyGames(uid);
-            return result;
+            return proxy.showAllMyGames(uid);
         } catch (Exception e) {
             System.err.println("✗ showAllMyGames error: " + e.getMessage());
             return "ERROR-DB";
@@ -185,16 +200,15 @@ public class SOAPClient {
 
     public String leagueTable() {
         try {
-            String result = proxy.leagueTable();
-            return result;
+            return proxy.leagueTable();
         } catch (Exception e) {
             System.err.println("✗ leagueTable error: " + e.getMessage());
             return "ERROR-DB";
         }
     }
-    
+
     // ============ UTILITY METHODS ============
-    
+
     public void closeConnection() {
         try {
             proxy.closeConnection();
