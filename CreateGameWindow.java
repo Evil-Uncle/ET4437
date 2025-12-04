@@ -25,16 +25,16 @@ public class CreateGameWindow extends JFrame {
         add(p);
     }
 
-    /**
-     * Register an action to run when the user clicks Create.
-     * The action should perform the web-service call to create a game.
-     */
+   
+    // Registers when user clicks Create
+    // Calls the WS to create a new Game
     public void setCreateAction(ActionListener action) {
         btnCreate.addActionListener(action);
     }
 
-    /** Set informational text (e.g. "Game created: id=12") */
+    // Sets informational text (e.g. "Game created: id=12")
     public void setInfo(String text) {
         lblInfo.setText(text);
     }
+
 }
