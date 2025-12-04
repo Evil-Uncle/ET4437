@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// The Games Main Menu Screen
 import javax.swing.*;
 import java.awt.*;
 
@@ -78,4 +78,5 @@ public class MainMenuWindow extends JFrame {
 
         setLocationRelativeTo(null);
     }
+
 }
