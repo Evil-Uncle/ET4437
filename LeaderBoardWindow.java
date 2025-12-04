@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// File that presents the Games Leaderboard
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -43,4 +43,5 @@ public class LeaderBoardWindow extends JFrame {
         add(close, BorderLayout.SOUTH);
         setLocationRelativeTo(null);
     }
+
 }
