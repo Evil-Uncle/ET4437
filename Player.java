@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// File that configures player data
 public class Player {
     private String name;
     private String marker;
@@ -16,4 +16,5 @@ public class Player {
     public String getMarker() {
         return marker;
     }
+
 }
