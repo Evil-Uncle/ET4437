@@ -1,7 +1,7 @@
 package com.mycompany.tttgame;
 
 public class GameTimeoutThread extends Thread {
-
+// File that deletes a game after 15 minutes of inactivity
     private final int gameId;
     private final int creatorId;
     private final SOAPClient client;
@@ -23,7 +23,7 @@ public class GameTimeoutThread extends Thread {
             String state = client.getGameState(gameId);
 
             if (state.equals("-1")) {
-                // No one joined → delete it
+                // No one joined, game is deleted
                 String result = client.deleteGame(gameId, creatorId);
                 System.out.println("Game " + gameId + " deleted due to timeout: " + result);
             } else {
@@ -34,4 +34,5 @@ public class GameTimeoutThread extends Thread {
             e.printStackTrace();
         }
     }
+
 }
