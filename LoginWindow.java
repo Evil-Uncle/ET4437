@@ -1,5 +1,5 @@
 package com.mycompany.tttgame;
-
+// File that prompts users to login to the game
 import javax.swing.*;
 import java.awt.*;
 
@@ -47,4 +47,5 @@ public class LoginWindow extends JFrame {
         
         setLocationRelativeTo(null);
     }
+
 }
