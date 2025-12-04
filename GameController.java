@@ -1,7 +1,7 @@
 package com.mycompany.tttgame;
 
 public class GameController {
-
+// File that starts the Game
     private GameBoard board;
     private Player p1;
     private Player p2;
@@ -16,4 +16,5 @@ public class GameController {
         System.out.println("Starting Tic-Tac-Toe Game...");
         board.printBoard();
     }
+
 }
