@@ -2,19 +2,13 @@ package com.mycompany.tttgame;
 
 import javax.swing.*;
 
-
-// Calls the server to update the game
-// Computes each players turns
-
 public class GameUpdateThread implements Runnable {
-
+    
     private final GameBoardWindow view;
     private final SOAPClient client;
     private final int userId;
     private final int gameId;
-    private volatile boolean running = true;
-    private volatile boolean immediateRefresh = false;
-    private final long pollIntervalMs = 2000; // 2s
+    private boolean running = true;
 
     public GameUpdateThread(GameBoardWindow view, SOAPClient client, int userId, int gameId) {
         this.view = view;
@@ -27,96 +21,83 @@ public class GameUpdateThread implements Runnable {
         running = false;
     }
 
-    // Refreshing the Game
-    public void requestImmediateRefresh() {
-        immediateRefresh = true;
-    }
-
     @Override
     public void run() {
         while (running) {
             try {
-                pollOnce();
-
-                // sleep loop with early wake for immediate refresh
-                long slept = 0;
-                while (running && slept < pollIntervalMs && !immediateRefresh) {
-                    Thread.sleep(200);
-                    slept += 200;
+                // 1. Check win FIRST
+                int win = client.checkWinInt(gameId);
+                System.out.println("Win check: " + win);
+                
+                if (win == 1 || win == 2 || win == 3) {
+                    SwingUtilities.invokeLater(() -> view.showGameResult(win));
+                    running = false;
+                    break;
                 }
-                immediateRefresh = false;
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                break;
-            } catch (Exception ex) {
-                // Keep polling in case of transient errors
-                System.err.println("GameUpdateThread error: " + ex.getMessage());
-                try { Thread.sleep(pollIntervalMs); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+                
+                // 2. Get board
+                String board = client.getBoard(gameId);
+                
+                // 3. Update board
+                SwingUtilities.invokeLater(() -> {
+                    if (board != null && !board.startsWith("ERROR")) {
+                        view.applyBoard(board);
+                    }
+                });
+                
+                // 4. Calculate turn
+                if (board != null && !board.startsWith("ERROR")) {
+                    boolean myTurn = calculateTurn(board);
+                    SwingUtilities.invokeLater(() -> view.setMyTurn(myTurn));
+                }
+                
+                Thread.sleep(2000);
+                
+            } catch (Exception e) {
+                System.err.println("Poll error: " + e.getMessage());
+                try { Thread.sleep(2000); } catch (InterruptedException ie) { break; }
             }
         }
     }
 
-    private void pollOnce() {
-        // Get Board
-        String board = client.getBoard(gameId);
-
-        // Apply board to UI (on EDT)
-        SwingUtilities.invokeLater(() -> view.applyBoard(board));
-
-        // Decide whose turn it is
-        boolean myTurn = computeMyTurn(board);
-        SwingUtilities.invokeLater(() -> view.setMyTurn(myTurn));
-
-        // Check for win/draw
-        int win = client.checkWinInt(gameId);
-        if (win == 1 || win == 2 || win == 3) {
-            // show winner/draw and stop polling
-            SwingUtilities.invokeLater(() -> {
-                String msg;
-                if (win == 3) {
-                    msg = "Game ended in a draw.";
-                } else {
-                    // winner 1 or 2 - map to player id (we need to know who is player1/p2)
-                    // The WS checkWin returns "1" if p1 won, "2" if p2 won.
-                    // We don't know p1/p2 ids here so we'll just show generic
-                    msg = (win == 1) ? "Player 1 has won!" : "Player 2 has won!";
-                }
-                JOptionPane.showMessageDialog(view, msg, "Game Over", JOptionPane.INFORMATION_MESSAGE);
-            });
-            stopRunning();
-        }
-    }
-
-    
-     // Determine if it's this client's turn.
-     // Logic:
-     // If board string is ERROR-NOMOVES or empty, then p1 (creator) to play first.
-     // Else parse last row (last move) and see its pid: if last move was by this user, it's NOT this user's turn; otherwise it is.
-     
-    private boolean computeMyTurn(String board) {
+    private boolean calculateTurn(String board) {
         try {
-            if (board == null) return false;
-            if (board.startsWith("ERROR-NOMOVES") || board.trim().isEmpty()) {
-                // No moves yet - p1 (creator) to move; we don't know if current user is p1.
-                // To be conservative: if user created the game, they start; otherwise they wait.
-                // The GameBoardWindow sets isCreator flag and will request setMyTurn accordingly when created.
+            if (board.startsWith("ERROR-NOMOVES")) {
+                // No moves yet - check if game has started
+                String state = client.getGameState(gameId);
+                System.out.println("Game state: " + state);
+                
+                if (state != null && state.trim().equals("-1")) {
+                    // Game waiting for player 2
+                    System.out.println("Waiting for player 2 to join");
+                    return false; // Can't play until someone joins
+                }
+                
+                // Game has 2 players, creator starts
+                System.out.println("Game ready, creator starts: " + view.isCreator());
                 return view.isCreator();
             }
-            if (board.startsWith("ERROR")) {
-                return false;
+            
+            // Count moves
+            String[] moves = board.split("\n");
+            int totalMoves = moves.length;
+            System.out.println("Moves: " + totalMoves);
+            
+            // X (creator) on even turns: 0, 2, 4, 6, 8
+            // O (joiner) on odd turns: 1, 3, 5, 7
+            boolean isXTurn = (totalMoves % 2 == 0);
+            
+            if (view.isCreator()) {
+                System.out.println("You are X, your turn: " + isXTurn);
+                return isXTurn;
+            } else {
+                System.out.println("You are O, your turn: " + !isXTurn);
+                return !isXTurn;
             }
-
-            // board format: multiple lines each "pId,x,y"
-            String[] rows = board.split("\n");
-            String last = rows[rows.length - 1];
-            String[] parts = last.split(",");
-            if (parts.length < 1) return false;
-            int lastPid = Integer.parseInt(parts[0].trim());
-            return lastPid != this.userId;
-        } catch (Exception ex) {
+            
+        } catch (Exception e) {
+            System.err.println("Turn calc error: " + e.getMessage());
             return false;
         }
     }
-
 }
-

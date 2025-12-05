@@ -2,48 +2,123 @@ package com.mycompany.tttgame;
 
 import com.tttws.TicTacToeWS;
 import com.tttws.TicTacToeWebService;
-import jakarta.xml.ws.BindingProvider;
+import javax.swing.JOptionPane;
+import javax.xml.namespace.QName;
+import java.net.URL;
 
-//Real SOAP client for TicTacToe Web Service.
+/**
+ * Real SOAP client for TicTacToe Web Service with configurable URL.
+ */
 public class SOAPClient {
 
     private static TicTacToeWebService service;
     private static TicTacToeWS proxy;
+    private static String currentWsdlUrl = null;
 
     public SOAPClient() {
         init();
     }
 
+    /**
+     * Set a custom WSDL URL (for demo/testing).
+     */
+    public static void setWsdlUrl(String url) {
+        if (url != null && !url.trim().isEmpty() && !url.equals(currentWsdlUrl)) {
+            System.out.println("Changing WSDL URL to: " + url);
+            currentWsdlUrl = url.trim();
+            // Reset service to force reconnection with new URL
+            service = null;
+            proxy = null;
+        }
+    }
+
     private static synchronized void init() {
         if (service == null || proxy == null) {
             try {
-                service = new TicTacToeWebService();
+                // Get WSDL URL from config or ask user
+                String wsdlUrl = getWsdlUrl();
+                
+                System.out.println("Initializing web service client with URL: " + wsdlUrl);
+                
+                // Create service with custom URL
+                URL url = new URL(wsdlUrl);
+                QName qname = new QName("http://tttws.com/", "TicTacToeWebService");
+                service = new TicTacToeWebService(url, qname);
                 proxy = service.getTicTacToeWSPort();
-
-                // Update server address
-                String serverIP = "10.63.248.134";  // teammate's IP
-                String endpoint = "http://" + serverIP + ":8080/TicTacToeWS/TicTacToeWebService";
-
-                // Changes the web service URL from the default to your friend’s IP address
-                BindingProvider bp = (BindingProvider) proxy;
-                bp.getRequestContext().put(
-                        BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                        endpoint
-                );
-
-                // Prints out the web servers URl
-                System.out.println("SOAP endpoint set to: " + endpoint);
-
+                
                 System.out.println("✓ Web Service client initialized successfully");
+                currentWsdlUrl = wsdlUrl;
+                
             } catch (Exception e) {
                 System.err.println("✗ Failed to initialize web service client: " + e.getMessage());
-                e.printStackTrace();
+                
+                // Show error dialog to user
+                JOptionPane.showMessageDialog(null,
+                    "Cannot connect to web service at:\n" + 
+                    (currentWsdlUrl != null ? currentWsdlUrl : "unknown URL") + 
+                    "\n\nError: " + e.getMessage() + 
+                    "\n\nPlease check:\n" +
+                    "1. Web service is running\n" +
+                    "2. URL is correct\n" +
+                    "3. Network connection is working",
+                    "Connection Error",
+                    JOptionPane.ERROR_MESSAGE);
+                
+                // Reset to force re-asking URL next time
+                currentWsdlUrl = null;
+                service = null;
+                proxy = null;
+                throw new RuntimeException("Web service initialization failed", e);
             }
         }
     }
 
-    // below is for logging in and registering users
+    /**
+     * Get WSDL URL - asks user on first run if not set.
+     */
+    private static String getWsdlUrl() {
+        if (currentWsdlUrl == null || currentWsdlUrl.isEmpty()) {
+            // Default URL for development
+            String defaultUrl = "http://localhost:8080/TicTacToeWS/TicTacToeWebService?wsdl";
+            
+            // Try to read from system property first
+            String systemUrl = System.getProperty("wsdl.url");
+            if (systemUrl != null && !systemUrl.trim().isEmpty()) {
+                currentWsdlUrl = systemUrl.trim();
+                return currentWsdlUrl;
+            }
+            
+            // Ask user for URL
+            String input = (String) JOptionPane.showInputDialog(
+                null,
+                "Enter the WSDL URL for the TicTacToe Web Service:\n" +
+                "(During demo, use the server URL provided by instructor)",
+                "Web Service Configuration",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                null,
+                defaultUrl
+            );
+            
+            if (input != null && !input.trim().isEmpty()) {
+                currentWsdlUrl = input.trim();
+            } else {
+                // User cancelled or entered nothing, use default
+                currentWsdlUrl = defaultUrl;
+            }
+        }
+        return currentWsdlUrl;
+    }
 
+    /**
+     * Get current WSDL URL (for debugging).
+     */
+    public static String getCurrentWsdlUrl() {
+        return currentWsdlUrl != null ? currentWsdlUrl : "Not set";
+    }
+    
+    // ============ AUTHENTICATION METHODS ============
+    
     public int login(String username, String password) {
         try {
             int result = proxy.login(username, password);
@@ -65,9 +140,9 @@ public class SOAPClient {
             return "ERROR-DB";
         }
     }
-
-    // Game logic
-
+    
+    // ============ GAME MANAGEMENT METHODS ============
+    
     public String newGame(int uid) {
         try {
             String result = proxy.newGame(uid);
@@ -92,7 +167,8 @@ public class SOAPClient {
 
     public String getBoard(int gid) {
         try {
-            return proxy.getBoard(gid);
+            String result = proxy.getBoard(gid);
+            return result;
         } catch (Exception e) {
             System.err.println("✗ getBoard error: " + e.getMessage());
             return "ERROR-DB";
@@ -101,7 +177,8 @@ public class SOAPClient {
 
     public String checkSquare(int x, int y, int gid) {
         try {
-            return proxy.checkSquare(x, y, gid);
+            String result = proxy.checkSquare(x, y, gid);
+            return result;
         } catch (Exception e) {
             System.err.println("✗ checkSquare error: " + e.getMessage());
             return "ERROR-DB";
@@ -121,7 +198,8 @@ public class SOAPClient {
 
     public String checkWin(int gid) {
         try {
-            return proxy.checkWin(gid);
+            String result = proxy.checkWin(gid);
+            return result;
         } catch (Exception e) {
             System.err.println("✗ checkWin error: " + e.getMessage());
             return "ERROR-DB";
@@ -131,8 +209,29 @@ public class SOAPClient {
     public int checkWinInt(int gid) {
         try {
             String s = checkWin(gid);
-            if (s == null || s.startsWith("ERROR")) return -1;
-            return Integer.parseInt(s.trim());
+            
+            if (s == null) {
+                System.out.println("checkWin returned null for game " + gid);
+                return -1;
+            }
+            
+            if (s.startsWith("ERROR")) {
+                System.out.println("checkWin returned error: " + s + " for game " + gid);
+                return -1;
+            }
+            
+            s = s.trim();
+            if (s.isEmpty()) {
+                return 0;
+            }
+            
+            int result = Integer.parseInt(s);
+            System.out.println("checkWinInt parsed result: " + result + " for game " + gid);
+            return result;
+            
+        } catch (NumberFormatException e) {
+            System.err.println("✗ checkWinInt parse error for game " + gid + ": '" + e.getMessage() + "'");
+            return -1;
         } catch (Exception ex) {
             System.err.println("✗ Error in checkWinInt: " + ex.getMessage());
             return -1;
@@ -141,7 +240,8 @@ public class SOAPClient {
 
     public String getGameState(int gid) {
         try {
-            return proxy.getGameState(gid);
+            String result = proxy.getGameState(gid);
+            return result;
         } catch (Exception e) {
             System.err.println("✗ getGameState error: " + e.getMessage());
             return "ERROR-DB";
@@ -170,12 +270,13 @@ public class SOAPClient {
             return "ERROR-DB";
         }
     }
-
-    // Read only for info of the server
-
+    
+    // ============ LIST/QUERY METHODS ============
+    
     public String showOpenGames() {
         try {
-            return proxy.showOpenGames();
+            String result = proxy.showOpenGames();
+            return result;
         } catch (Exception e) {
             System.err.println("✗ showOpenGames error: " + e.getMessage());
             return "ERROR-DB";
@@ -184,7 +285,8 @@ public class SOAPClient {
 
     public String showAllMyGames(int uid) {
         try {
-            return proxy.showAllMyGames(uid);
+            String result = proxy.showAllMyGames(uid);
+            return result;
         } catch (Exception e) {
             System.err.println("✗ showAllMyGames error: " + e.getMessage());
             return "ERROR-DB";
@@ -193,15 +295,16 @@ public class SOAPClient {
 
     public String leagueTable() {
         try {
-            return proxy.leagueTable();
+            String result = proxy.leagueTable();
+            return result;
         } catch (Exception e) {
             System.err.println("✗ leagueTable error: " + e.getMessage());
             return "ERROR-DB";
         }
     }
-
-    // clean up
-
+    
+    // ============ UTILITY METHODS ============
+    
     public void closeConnection() {
         try {
             proxy.closeConnection();

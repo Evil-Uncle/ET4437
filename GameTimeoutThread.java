@@ -1,7 +1,7 @@
 package com.mycompany.tttgame;
 
 public class GameTimeoutThread extends Thread {
-// File that deletes a game after 15 minutes of inactivity
+    
     private final int gameId;
     private final int creatorId;
     private final SOAPClient client;
@@ -14,25 +14,20 @@ public class GameTimeoutThread extends Thread {
 
     @Override
     public void run() {
+        System.out.println("Game " + gameId + " created. Auto-delete DISABLED for demo.");
+        // DISABLED for demo - don't delete games
+        // return;
+        
+        // Or keep but make it 30 MINUTES for demo:
         try {
-            // 15 minutes = 900,000 ms
-            // For testing, use 30 seconds (30000 ms) instead
-            Thread.sleep(30000);
-
-            // Check if the game is still waiting (-1)
+            Thread.sleep(30 * 60 * 1000); // 30 minutes
             String state = client.getGameState(gameId);
-
-            if (state.equals("-1")) {
-                // No one joined, game is deleted
-                String result = client.deleteGame(gameId, creatorId);
-                System.out.println("Game " + gameId + " deleted due to timeout: " + result);
-            } else {
-                System.out.println("Game " + gameId + " already started. Not deleting.");
+            if (state != null && state.trim().equals("-1")) {
+                client.deleteGame(gameId, creatorId);
+                System.out.println("Game " + gameId + " deleted after 30 minutes (demo)");
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
+            // Ignore
         }
     }
-
 }
